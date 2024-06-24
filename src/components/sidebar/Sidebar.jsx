@@ -4,6 +4,7 @@ import {
   PresentationChart,
   ProjectorScreenChart,
   UsersThree,
+  Video,
 } from "@phosphor-icons/react";
 import React from "react";
 import SidebarLinks from "./SidebarLinks";
@@ -31,6 +32,11 @@ const Sidebar = ({ sideBarExpanded }) => {
       name: "File System",
       icon: <Files size={24} />,
       href: `/project/${projectId}/repositories`,
+    },
+    {
+      name: "Start Meeting",
+      icon: <Video size={24} />,
+      href: `/project/${projectId}/video`,
     },
   ];
   return (
