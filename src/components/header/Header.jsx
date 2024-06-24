@@ -4,11 +4,10 @@ import HeaderDropdown from "./HeaderDropdown";
 import { NavLink, useParams } from "react-router-dom";
 
 const Header = () => {
-  const HEADER_TAGS = ["Teams", "Your Projects"];
   const [showUserActions, setShowUserActions] = useState(false);
   const { teamId, projectId } = useParams();
   return (
-    <header className="px-4 py-3 w-full sticky top-0 border-b border-gray-300 shadow-sm flex items-center justify-between z-20">
+    <header className="px-4 py-3 w-screen sticky top-0 border-b border-gray-300 shadow-sm flex items-center justify-between z-20">
       <div className="flex items-center gap-8">
         {/* logo and CollabNest */}
         <NavLink to={"/"} className="flex items-center gap-1">
@@ -22,7 +21,7 @@ const Header = () => {
         {/* your-projects and teams dropdowns */}
         <div className="flex items-center gap-4">
           <HeaderDropdown tag={"Teams"} />
-          {(teamId || projectId) && <HeaderDropdown tag={"Your Projects"} />}
+          {(teamId || projectId) && <HeaderDropdown tag={"Team Projects"} />}
           <button
             type="button"
             className="p-2 text-white text-sm font-medium bg-blue-500 rounded-md"
