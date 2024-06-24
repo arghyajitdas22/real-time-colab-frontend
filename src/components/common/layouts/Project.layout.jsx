@@ -11,7 +11,7 @@ const Projectlayout = ({ children }) => {
       {/* header */}
       <Header />
       {/* sidebar */}
-      <div className="flex w-full relative h-[calc(100vh-62px)]">
+      <div className="flex w-full relative h-[calc(100vh-62px)] overflow-hidden">
         <Sidebar sideBarExpanded={!expandSidebar} />
         {expandSidebar ? (
           <CaretCircleRight
@@ -24,7 +24,7 @@ const Projectlayout = ({ children }) => {
           <CaretCircleLeft
             size={32}
             weight="fill"
-            className="text-blue-950 absolute top-6 left-[233px] z-20 bg-white cursor-pointer rounded-full p-0"
+            className="text-blue-950 absolute top-6 left-[196px] z-20 bg-white cursor-pointer rounded-full p-0"
             onClick={() => setExpandSidebar((prev) => !prev)}
           />
         )}

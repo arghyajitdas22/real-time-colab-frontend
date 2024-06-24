@@ -37,7 +37,7 @@ const Sidebar = ({ sideBarExpanded }) => {
     <div
       className={`h-full ${
         sideBarExpanded ? "w-[250px] pt-6" : "w-16 pt-2"
-      }  z-10 border-r-[3px] border-blue-600 sticky  flex flex-col gap-6`}
+      }  z-10 border-r-[3px] border-blue-600 sticky flex flex-col gap-6`}
     >
       {sideBarExpanded && (
         <>
