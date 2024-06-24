@@ -73,6 +73,65 @@ const TaskManager = () => {
     setSearchVal(e.target.value);
   };
 
+  const onDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    )
+      return;
+
+    const start = listState.columns[source.droppableId];
+    const finish = listState.columns[destination.droppableId];
+
+    if (start === finish) {
+      const newTaskIds = Array.from(start.taskIds);
+      newTaskIds.splice(source.index, 1);
+      newTaskIds.splice(destination.index, 0, draggableId);
+
+      const newColumn = {
+        ...start,
+        taskIds: newTaskIds,
+      };
+
+      const newState = {
+        ...listState,
+        columns: {
+          ...listState.columns,
+          [newColumn.id]: newColumn,
+        },
+      };
+
+      setListState(newState);
+      return;
+    }
+
+    // Moving from one list to another
+    const startTaskIds = Array.from(start.taskIds);
+    startTaskIds.splice(source.index, 1);
+    const newStart = {
+      ...start,
+      taskIds: startTaskIds,
+    };
+    const finishTaskIds = Array.from(finish.taskIds);
+    finishTaskIds.splice(destination.index, 0, draggableId);
+    const newFinish = {
+      ...finish,
+      taskIds: finishTaskIds,
+    };
+    // Update the state
+    const newState = {
+      ...listState,
+      columns: {
+        ...listState.columns,
+        [newStart.id]: newStart,
+        [newFinish.id]: newFinish,
+      },
+    };
+    setListState(newState);
+  };
+
   return (
     <div className="py-5 px-10 flex flex-col gap-4 overflow-y-auto w-full">
       <p className="flex items-center gap-4 text-sm text-[#44546f]">
@@ -114,16 +173,25 @@ const TaskManager = () => {
         </button>
       </div>
 
-      <div className="flex items-center gap-2">
-        {listState.columnOrder.map((columnId) => {
-          const column = listState.columns[columnId];
-          const tasks = column.taskIds.map((taskId) => listState.tasks[taskId]);
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex items-center gap-2">
+          {listState.columnOrder.map((columnId) => {
+            const column = listState.columns[columnId];
+            const tasks = column.taskIds.map(
+              (taskId) => listState.tasks[taskId]
+            );
 
-          return (
-            <TaskColumn key={column.id} colName={column.title} tasks={tasks} />
-          );
-        })}
-      </div>
+            return (
+              <TaskColumn
+                key={column.id}
+                colName={column.title}
+                tasks={tasks}
+                colId={columnId}
+              />
+            );
+          })}
+        </div>
+      </DragDropContext>
     </div>
   );
 };
