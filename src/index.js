@@ -1,4 +1,3 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -11,19 +10,26 @@ import ProjectChat from "./pages/ProjectChat";
 import ProjectChannels from "./pages/ProjectChannels";
 import ProjectRepos from "./pages/ProjectRepos";
 import Meetings from "./Meeting";
-import { ChakraProvider } from '@chakra-ui/react';
-
+import { ChakraProvider } from "@chakra-ui/react";
+import TaskModal from "./components/project/task-manager/TaskModal";
+import CreateModal from "./components/common/CreateModal";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Outlet />,
+    element: (
+      <>
+        <TaskModal />
+        <CreateModal />
+        <Outlet />
+      </>
+    ),
     children: [
       {
         path: "",
         element: <Home />,
       },
-      
+
       {
         path: "projects/:teamId",
         element: <Projects />,
@@ -60,9 +66,9 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
- <ChakraProvider>
-<RouterProvider router={router} />
-</ChakraProvider>
+  <ChakraProvider>
+    <RouterProvider router={router} />
+  </ChakraProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

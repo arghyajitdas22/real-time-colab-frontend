@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SearchBar from "../../common/SearchBar";
 import { UserCircle } from "@phosphor-icons/react/dist/ssr";
-import { UserPlus } from "@phosphor-icons/react";
+// import { UserPlus } from "@phosphor-icons/react";
 import TaskColumn from "./TaskColumn";
 import { DragDropContext } from "react-beautiful-dnd";
 
@@ -165,12 +165,12 @@ const TaskManager = () => {
           </div>
         </div>
         {/* add memeber button which opens modal for adding member */}
-        <button
+        {/* <button
           type="button"
           className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-sm text-blue-950 hover:scale-95 basic-trans"
         >
           <UserPlus size={18} className="text-blue-950" />
-        </button>
+        </button> */}
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
