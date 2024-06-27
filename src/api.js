@@ -1,6 +1,9 @@
+import axios from 'axios';
+
 const API_BASE_URL = "https://api.videosdk.live";
 const VIDEOSDK_TOKEN = process.env.REACT_APP_VIDEOSDK_TOKEN;
 const API_AUTH_URL = process.env.REACT_APP_AUTH_URL;
+
 
 export const getToken = async () => {
   if (VIDEOSDK_TOKEN && API_AUTH_URL) {
@@ -62,3 +65,10 @@ export const validateMeeting = async ({ roomId, token }) => {
   }
 
 };
+
+
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api', // Update this to match your backend URL
+});
+
+export default api;

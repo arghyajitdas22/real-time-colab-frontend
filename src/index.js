@@ -25,10 +25,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     loader: async () => {
-      const token = localStorage.getItem("token") || null;
+      const token = localStorage.getItem("token");
       if (token) {
         const options = {
-          url: `http://localhost:8000/api/auth/session-auth`,
+          url: 'http://localhost:8000/api/auth/session-auth',
           method: "POST",
           data: { token },
         };
