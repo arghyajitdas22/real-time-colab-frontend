@@ -8,6 +8,7 @@ const LoginUserCard = ({ handleClick }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const InputBoxArray = [
@@ -31,7 +32,7 @@ const LoginUserCard = ({ handleClick }) => {
 
     const options = {
       method: "POST",
-      url: `http://localhost:8000/api/auth/login`,
+      url: 'http://localhost:8000/api/auth/login',
       data: formData,
     };
 
