@@ -5,7 +5,7 @@ import reportWebVitals from "./reportWebVitals";
 import {
   createBrowserRouter,
   Outlet,
-  redirect,
+  // redirect,
   RouterProvider,
 } from "react-router-dom";
 import Home from "./pages/Home";
@@ -16,8 +16,8 @@ import ProjectChannels from "./pages/ProjectChannels";
 import ProjectRepos from "./pages/ProjectRepos";
 import Meetings from "./Meeting";
 import { ChakraProvider } from "@chakra-ui/react";
-import TaskModal from "./components/project/task-manager/TaskModal";
-import CreateModal from "./components/common/CreateModal";
+// import TaskModal from "./components/project/task-manager/TaskModal";
+// import CreateModal from "./components/common/CreateModal";
 import Auth from "./pages/Auth";
 import WrapperPage from "./pages/WrapperPage";
 
