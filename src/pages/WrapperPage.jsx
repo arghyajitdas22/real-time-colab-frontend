@@ -10,7 +10,7 @@ const WrapperPage = () => {
     const token = localStorage.getItem("token") || null;
     if (token) {
       const options = {
-        url: `http://localhost:8000/api/auth/session-auth`,
+        url: 'http://localhost:8000/api/auth/session-auth',
         method: "POST",
         data: { token },
       };
