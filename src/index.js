@@ -19,41 +19,12 @@ import { ChakraProvider } from "@chakra-ui/react";
 import TaskModal from "./components/project/task-manager/TaskModal";
 import CreateModal from "./components/common/CreateModal";
 import Auth from "./pages/Auth";
-import axios from "axios";
+import WrapperPage from "./pages/WrapperPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    loader: async () => {
-      const token = localStorage.getItem("token") || null;
-      if (token) {
-        const options = {
-          url: `http://localhost:8000/api/auth/session-auth`,
-          method: "POST",
-          data: { token },
-        };
-
-        try {
-          const response = await axios.request(options);
-          const msg = response.data.message;
-
-          if (msg === "token active") {
-            return null;
-          } else return redirect("/auth");
-        } catch (error) {
-          console.log(error);
-          return null;
-        }
-      }
-      return null;
-    },
-    element: (
-      <>
-        <TaskModal />
-        <CreateModal />
-        <Outlet />
-      </>
-    ),
+    element: <WrapperPage />,
     children: [
       {
         path: "",
