@@ -2,8 +2,10 @@ import { Bell, CaretUp, UserCircle } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import HeaderDropdown from "./HeaderDropdown";
 import { NavLink, useParams } from "react-router-dom";
+import useCreateModal from "../../hooks/useCreateModal";
 
 const Header = () => {
+  const open = useCreateModal((state) => state.open);
   const [showUserActions, setShowUserActions] = useState(false);
   const { teamId, projectId } = useParams();
   return (
@@ -25,6 +27,7 @@ const Header = () => {
           <button
             type="button"
             className="p-2 text-white text-sm font-medium bg-blue-500 rounded-md"
+            onClick={() => open()}
           >
             Create
           </button>

@@ -2,8 +2,10 @@ import { Plus } from "@phosphor-icons/react";
 import React from "react";
 import TaskCard from "./TaskCard";
 import { Droppable } from "react-beautiful-dnd";
+import useTaskModal from "../../../hooks/useTaskModal";
 
 const TaskColumn = ({ colName, tasks, colId }) => {
+  const open = useTaskModal((state) => state.open);
   return (
     <div className="w-[260px] h-full bg-[#f4f5f7] flex flex-col rounded-[5px] shadow-sm pb-4">
       <div className="w-full flex items-center justify-between px-3 py-2 rounded-t-[5px]">
@@ -15,6 +17,7 @@ const TaskColumn = ({ colName, tasks, colId }) => {
         <Plus
           size={16}
           className=" cursor-pointer hover:scale-105 basic-trans"
+          onClick={() => open()}
         />
       </div>
       <Droppable droppableId={colId}>

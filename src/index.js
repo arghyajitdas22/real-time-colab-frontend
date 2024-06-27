@@ -1,9 +1,13 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Outlet,
+  redirect,
+  RouterProvider,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import ProjectTask from "./pages/ProjectTask";
@@ -11,19 +15,50 @@ import ProjectChat from "./pages/ProjectChat";
 import ProjectChannels from "./pages/ProjectChannels";
 import ProjectRepos from "./pages/ProjectRepos";
 import Meetings from "./Meeting";
-import { ChakraProvider } from '@chakra-ui/react';
-
+import { ChakraProvider } from "@chakra-ui/react";
+import TaskModal from "./components/project/task-manager/TaskModal";
+import CreateModal from "./components/common/CreateModal";
+import Auth from "./pages/Auth";
+import axios from "axios";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Outlet />,
+    loader: async () => {
+      const token = localStorage.getItem("token") || null;
+      if (token) {
+        const options = {
+          url: `http://localhost:8000/api/auth/session-auth`,
+          method: "POST",
+          data: { token },
+        };
+
+        try {
+          const response = await axios.request(options);
+          const msg = response.data.message;
+
+          if (msg === "token active") {
+            return null;
+          } else return redirect("/auth");
+        } catch (error) {
+          console.log(error);
+          return null;
+        }
+      }
+      return null;
+    },
+    element: (
+      <>
+        <TaskModal />
+        <CreateModal />
+        <Outlet />
+      </>
+    ),
     children: [
       {
         path: "",
         element: <Home />,
       },
-      
       {
         path: "projects/:teamId",
         element: <Projects />,
@@ -54,15 +89,19 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "auth",
+        element: <Auth />,
+      },
     ],
   },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
- <ChakraProvider>
-<RouterProvider router={router} />
-</ChakraProvider>
+  <ChakraProvider>
+    <RouterProvider router={router} />
+  </ChakraProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
