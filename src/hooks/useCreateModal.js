@@ -4,7 +4,7 @@ const useCreateModal = create((set) => ({
   isOpen: false,
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
-  type: "task",
+  type: "team",
   toogleType: (type) => set({ type: type }),
 }));
 
