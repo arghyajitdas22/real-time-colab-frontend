@@ -1,8 +1,22 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useTaskModal from "../../../hooks/useTaskModal";
 import { CalendarBlank, X } from "@phosphor-icons/react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+
+export const formatSelectedDate = (date) => {
+  if (!date) {
+    return "Enter Due Date";
+  }
+
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
 
 const TaskModal = () => {
   const {
@@ -15,6 +29,7 @@ const TaskModal = () => {
     dueDate,
     setDueDate,
     mode,
+    task_id,
   } = useTaskModal((state) => ({
     isOpen: state.isOpen,
     close: state.close,
@@ -25,10 +40,12 @@ const TaskModal = () => {
     dueDate: state.dueDate,
     setDueDate: state.setDueDate,
     mode: state.mode,
+    task_id: state.task_id,
   }));
-
+  const { projectId } = useParams();
   const [showCalender, setShowCalender] = useState(false);
   const dropRef = useRef(null);
+  const [members, setMembers] = useState([]);
   const [assignedUser, setAssignedUser] = useState();
 
   const handleDateChange = (date) => {
@@ -39,19 +56,28 @@ const TaskModal = () => {
     setShowCalender(false);
   };
 
-  const formatSelectedDate = (date) => {
-    if (!date) {
-      return "Enter Due Date";
+  const getProjectMembers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const options = {
+        method: "GET",
+        url: `http://localhost:8000/api/project/members/${projectId}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.request(options);
+      setMembers(response.data);
+    } catch (error) {
+      console.log(error);
     }
-
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
+    getProjectMembers();
+  }, [projectId]);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropRef.current && !dropRef.current.contains(event.target)) {
         setShowCalender(false);
@@ -64,6 +90,59 @@ const TaskModal = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropRef]);
+
+  const handleCreateTask = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const formData = {
+        status,
+        content,
+        due_date: dueDate,
+        projectId,
+        assigneeId: assignedUser,
+      };
+
+      const options = {
+        method: "POST",
+        url: `http://localhost:8000/api/task`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: formData,
+      };
+      const response = await axios.request(options);
+      console.log(response.data);
+      close();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEditTask = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const formData = {
+        content,
+        due_date: dueDate,
+      };
+
+      const options = {
+        method: "PATCH",
+        url: `http://localhost:8000/api/task/update/${task_id}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: formData,
+      };
+      await axios.request(options);
+      window.location.reload();
+      close();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (!isOpen) return null;
   return (
@@ -80,22 +159,24 @@ const TaskModal = () => {
           />
         </div>
         <div className="py-2 px-4 flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="task-status" className="text-sm">
-              Status
-            </label>
-            <select
-              name="status"
-              id="task-status"
-              className="w-[120px] py-1 pr-2 pl-1 border border-black focus:outline-none focus:border-2  focus:border-blue-600 rounded-md text-sm"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="todo">To Do</option>
-              <option value="inprogress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
+          {mode === "create" && (
+            <div className="flex flex-col gap-2">
+              <label htmlFor="task-status" className="text-sm">
+                Status
+              </label>
+              <select
+                name="status"
+                id="task-status"
+                className="w-[120px] py-1 pr-2 pl-1 border border-black focus:outline-none focus:border-2  focus:border-blue-600 rounded-md text-sm"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="TO_DO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2">
             <label htmlFor="task-content" className="text-sm">
@@ -123,7 +204,11 @@ const TaskModal = () => {
                 onChange={(e) => setAssignedUser(e.target.value)}
               >
                 <option value="">Choose an user as Assignee</option>
-                <option value="user_id">User Name</option>
+                {members.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.first_name} {member.last_name}
+                  </option>
+                ))}
               </select>
             </div>
           )}
@@ -158,6 +243,10 @@ const TaskModal = () => {
           <button
             type="button"
             className=" rounded-md py-1 px-2 bg-blue-500 text-center text-white"
+            onClick={() => {
+              if (mode === "create") handleCreateTask();
+              else handleEditTask();
+            }}
           >
             {mode === "create" ? "Create" : "Edit"} Task
           </button>
