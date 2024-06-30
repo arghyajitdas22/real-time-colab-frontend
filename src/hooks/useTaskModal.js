@@ -11,14 +11,16 @@ const useTaskModal = create((set) => ({
       content: "",
       dueDate: new Date(),
     }),
-  mode: "edit",
+  mode: "create",
   toogleMode: (mode) => set({ mode: mode }),
-  status: "todo",
+  status: "TO_DO",
   setStatus: (status) => set({ status: status }),
   content: "",
   setContent: (content) => set({ content: content }),
   dueDate: new Date(),
   setDueDate: (date) => set({ dueDate: date }),
+  task_id: null,
+  setTaskId: (id) => set({ task_id: id }),
 }));
 
 export default useTaskModal;

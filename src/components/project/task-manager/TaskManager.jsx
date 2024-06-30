@@ -1,72 +1,69 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SearchBar from "../../common/SearchBar";
 import { UserCircle } from "@phosphor-icons/react/dist/ssr";
 // import { UserPlus } from "@phosphor-icons/react";
 import TaskColumn from "./TaskColumn";
 import { DragDropContext } from "react-beautiful-dnd";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const TaskManager = () => {
-  const INITIAL_DATA = {
-    tasks: {
-      1: {
-        id: 1,
-        content: "Configure Next.js application",
-        date: "2021-09-01",
-        assignedTo: "John",
-      },
-      2: {
-        id: 2,
-        content: "Configure Next.js and tailwind ",
-        date: "2021-09-02",
-        assignedTo: "Aron",
-      },
-      3: {
-        id: 3,
-        content: "Create sidebar navigation menu",
-        date: "2021-09-03",
-        assignedTo: "Smith",
-      },
-      4: {
-        id: 4,
-        content: "Create page footer",
-        date: "2021-09-04",
-        assignedTo: "Carol",
-      },
-      5: {
-        id: 5,
-        content: "Create page navigation menu",
-        date: "2021-09-05",
-        assignedTo: "Chris",
-      },
-      6: {
-        id: 6,
-        content: "Create page layout",
-        date: "2021-09-06",
-        assignedTo: "Angela",
-      },
-    },
-    columns: {
-      "column-1": {
-        id: "column-1",
-        title: "TO-DO",
-        taskIds: [1, 2, 3, 4, 5, 6],
-      },
-      "column-2": {
-        id: "column-2",
-        title: "IN-PROGRESS",
-        taskIds: [],
-      },
-      "column-3": {
-        id: "column-3",
-        title: "COMPLETED",
-        taskIds: [],
-      },
-    },
-    // Facilitate reordering of the columns
-    columnOrder: ["column-1", "column-2", "column-3"],
+  const [listState, setListState] = useState(null);
+  const { projectId } = useParams();
+
+  const fetchAllTasks = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const options = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        url: `http://localhost:8000/api/task/${projectId}`,
+      };
+      const response = await axios.request(options);
+
+      const taskArray = response.data.tasks;
+      const taskObj = {};
+      taskArray.forEach((task) => {
+        taskObj[task.task_id] = task;
+      });
+      const to_do_ids = response.data.taskOrder.to_do_ids;
+      const in_progress_ids = response.data.taskOrder.in_progress_ids;
+      const completed_ids = response.data.taskOrder.completed_ids;
+
+      const data = {
+        tasks: taskObj,
+        columns: {
+          "column-1": {
+            id: "column-1",
+            title: "TO-DO",
+            taskIds: to_do_ids,
+          },
+          "column-2": {
+            id: "column-2",
+            title: "IN-PROGRESS",
+            taskIds: in_progress_ids,
+          },
+          "column-3": {
+            id: "column-3",
+            title: "COMPLETED",
+            taskIds: completed_ids,
+          },
+        },
+        // Facilitate reordering of the columns
+        columnOrder: ["column-1", "column-2", "column-3"],
+      };
+
+      setListState(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const [listState, setListState] = useState(INITIAL_DATA);
+  useEffect(() => {
+    fetchAllTasks();
+  }, [projectId]);
 
   const [searchVal, setSearchVal] = useState("");
   const handleSearch = (e) => {
@@ -74,6 +71,7 @@ const TaskManager = () => {
   };
 
   const onDragEnd = (result) => {
+    console.log(result);
     const { destination, source, draggableId } = result;
     if (!destination) return;
     if (
@@ -129,7 +127,38 @@ const TaskManager = () => {
         [newFinish.id]: newFinish,
       },
     };
-    setListState(newState);
+
+    // Update the database
+    const task_id = draggableId;
+    let status = "";
+    if (destination.droppableId === "column-1") status = "TO_DO";
+    else if (destination.droppableId === "column-2") status = "IN_PROGRESS";
+    else status = "COMPLETED";
+    const token = localStorage.getItem("token");
+    const formadata = {
+      to_do_ids: newState.columns["column-1"].taskIds,
+      in_progress_ids: newState.columns["column-2"].taskIds,
+      completed_ids: newState.columns["column-3"].taskIds,
+      taskId: task_id,
+      status,
+    };
+
+    const options = {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: formadata,
+      url: `http://localhost:8000/api/task/${projectId}`,
+    };
+    axios
+      .request(options)
+      .then(() => {
+        setListState(newState);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -142,54 +171,24 @@ const TaskManager = () => {
 
       <h1 className="text-[#172b4d] text-2xl font-bold">Project Name</h1>
 
-      <div className="flex items-center gap-6">
-        <SearchBar
-          iconSize={16}
-          iconStyles={"left-2 text-gray-700"}
-          placeholder={"Search Tasks"}
-          styles={"pl-7 py-1"}
-          val={searchVal}
-          handleSearch={handleSearch}
-        />
-        {/* profile images stacked for first 5 and then +left */}
-        <div className="flex items-center gap-1">
-          <div className="flex items-center -space-x-3">
-            <UserCircle size={36} className="z-40 bg-white rounded-full" />
-            <UserCircle size={36} className="z-30 bg-white rounded-full" />
-            <UserCircle size={36} className="z-20 bg-white rounded-full" />
-            <UserCircle size={36} className="z-10 bg-white rounded-full" />
-            <UserCircle size={36} />
-          </div>
-          <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-sm text-blue-950">
-            +6
-          </div>
-        </div>
-        {/* add memeber button which opens modal for adding member */}
-        {/* <button
-          type="button"
-          className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-sm text-blue-950 hover:scale-95 basic-trans"
-        >
-          <UserPlus size={18} className="text-blue-950" />
-        </button> */}
-      </div>
-
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex items-center gap-2">
-          {listState.columnOrder.map((columnId) => {
-            const column = listState.columns[columnId];
-            const tasks = column.taskIds.map(
-              (taskId) => listState.tasks[taskId]
-            );
+          {listState &&
+            listState.columnOrder.map((columnId) => {
+              const column = listState.columns[columnId];
+              const tasks = column.taskIds.map(
+                (taskId) => listState.tasks[taskId]
+              );
 
-            return (
-              <TaskColumn
-                key={column.id}
-                colName={column.title}
-                tasks={tasks}
-                colId={columnId}
-              />
-            );
-          })}
+              return (
+                <TaskColumn
+                  key={column.id}
+                  colName={column.title}
+                  tasks={tasks}
+                  colId={columnId}
+                />
+              );
+            })}
         </div>
       </DragDropContext>
     </div>
